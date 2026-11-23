@@ -1,0 +1,12 @@
+diff --git a/cmake/utils/arch.cmake b/cmake/utils/arch.cmake
+--- a/cmake/utils/arch.cmake
++++ b/cmake/utils/arch.cmake
+@@ -12,7 +12,7 @@
+     SOURCES ${DETECT_ARCH_C}
+     OUTPUT_VARIABLE COMPILE_OUTPUT)
+ 
+-string(REGEX MATCH "^[^\@]+@([a-zA-Z0-9_]+)@.*$" HAVE_MATCH ${COMPILE_OUTPUT})
++string(REGEX MATCH "@([a-zA-Z0-9_]+)@" HAVE_MATCH "${COMPILE_OUTPUT}")
+ set(ARCH ${CMAKE_MATCH_1})
+ 
+ if(NOT COMPILE_SUCCESS OR NOT HAVE_MATCH OR NOT ARCH)

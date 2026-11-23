@@ -1,0 +1,13 @@
+.apple-port/
+.DS_Store
+__pycache__/
+.env
+.env.*
+*.p8
+*.p12
+*.mobileprovision
+*.provisionprofile
+*.xcarchive/
+*.ipa
+*.pkg
+*.pk3

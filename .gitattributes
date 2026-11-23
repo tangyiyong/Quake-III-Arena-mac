@@ -1,0 +1,2 @@
+# Unified diff context contains required leading spaces and upstream tabs.
+tools/apple-port/patches/*.patch -whitespace

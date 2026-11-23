@@ -1,0 +1,125 @@
+diff --git a/cmake/platforms/macos.cmake b/cmake/platforms/macos.cmake
+--- a/cmake/platforms/macos.cmake
++++ b/cmake/platforms/macos.cmake
+@@ -13,6 +13,8 @@
+ if(ARENA_LAUNCHER_SOURCE)
+     list(APPEND SYSTEM_PLATFORM_SOURCES ${ARENA_LAUNCHER_SOURCE})
+     list(APPEND CLIENT_DEFINITIONS ARENA_RESOURCE_ONBOARDING)
++    get_filename_component(ARENA_LAUNCHER_DIR ${ARENA_LAUNCHER_SOURCE} DIRECTORY)
++    list(APPEND CLIENT_DEFINITIONS "ARENA_GAMEPAD_HEADER=\"${ARENA_LAUNCHER_DIR}/ArenaGamepad.h\"")
+ endif()
+ 
+ list(APPEND COMMON_LIBRARIES "-framework Cocoa")
+diff --git a/code/sdl/sdl_input.c b/code/sdl/sdl_input.c
+--- a/code/sdl/sdl_input.c
++++ b/code/sdl/sdl_input.c
+@@ -445,6 +445,10 @@
+ 	unsigned int oldhats;
+ } stick_state;
+ 
++#ifdef ARENA_GAMEPAD_HEADER
++#include ARENA_GAMEPAD_HEADER
++#endif
++
+ 
+ /*
+ ===============
+@@ -457,6 +461,9 @@
+ 	int total = 0;
+ 	char buf[16384] = "";
+ 
++	#ifdef ARENA_GAMEPAD_HEADER
++	Arena_ReleaseController();
++	#endif
+ 	if (gamepad)
+ 		SDL_GameControllerClose(gamepad);
+ 
+@@ -520,6 +527,14 @@
+ 
+ 	in_joystickUseAnalog = Cvar_Get( "in_joystickUseAnalog", "0", CVAR_ARCHIVE );
+ 
++#ifdef ARENA_GAMEPAD_HEADER
++	// Prefer a mapped game controller over unrelated raw joysticks.
++	if (!SDL_IsGameController(in_joystickNo->integer)) {
++		for (i = 0; i < total; i++) {
++			if (SDL_IsGameController(i)) { Cvar_SetValue("in_joystickNo", i); break; }
++		}
++	}
++#endif
+ 	stick = SDL_JoystickOpen( in_joystickNo->integer );
+ 
+ 	if (stick == NULL) {
+@@ -541,6 +556,10 @@
+ 
+ 	SDL_JoystickEventState(SDL_QUERY);
+ 	SDL_GameControllerEventState(SDL_QUERY);
++#ifdef ARENA_GAMEPAD_HEADER
++	if (gamepad) Com_Printf("Arena controller connected: %s (SDL type %d)\n",
++		SDL_GameControllerName(gamepad), (int)SDL_GameControllerGetType(gamepad));
++#endif
+ }
+ 
+ /*
+@@ -550,6 +569,10 @@
+ */
+ static void IN_ShutdownJoystick( void )
+ {
++#ifdef ARENA_GAMEPAD_HEADER
++	Arena_ReleaseController();
++	Cmd_RemoveCommand("arena_gamepadReset");
++#endif
+ 	if ( !SDL_WasInit( SDL_INIT_GAMECONTROLLER ) )
+ 		return;
+ 
+@@ -693,6 +716,12 @@
+ 	int translatedAxes[MAX_JOYSTICK_AXIS];
+ 	qboolean translatedAxesSet[MAX_JOYSTICK_AXIS];
+ 
++#ifdef ARENA_GAMEPAD_HEADER
++	if (Cvar_VariableIntegerValue("com_unfocused")) {
++		Arena_ReleaseController();
++		return;
++	}
++#endif
+ 	SDL_GameControllerUpdate();
+ 
+ 	// check buttons
+@@ -702,11 +731,18 @@
+ 		qboolean pressed = SDL_GameControllerGetButton(gamepad, sdlButton);
+ 		if (pressed != stick_state.buttons[i])
+ 		{
++#ifdef ARENA_GAMEPAD_HEADER
++			Arena_Button(sdlButton, pressed);
++#else
+ 			Com_QueueEvent(in_eventTime, SE_KEY, IN_KeyFor(sdlButton), pressed, 0, NULL);
++#endif
+ 			stick_state.buttons[i] = pressed;
+ 		}
+ 	}
+ 
++#ifdef ARENA_GAMEPAD_HEADER
++	if (Arena_MenuStick()) return;
++#endif
+ 	// must defer translated axes until all real axes are processed
+ 	// must be done this way to prevent a later mapped axis from zeroing out a previous one
+ 	if (in_joystickUseAnalog->integer)
+@@ -1154,6 +1190,9 @@
+ 
+ 			case SDL_CONTROLLERDEVICEADDED:
+ 			case SDL_CONTROLLERDEVICEREMOVED:
++#ifdef ARENA_GAMEPAD_HEADER
++			case SDL_CONTROLLERDEVICEREMAPPED:
++#endif
+ 				if (in_joystick->integer)
+ 					IN_InitJoystick();
+ 				break;
+@@ -1306,6 +1345,9 @@
+ 
+ 	in_joystick = Cvar_Get( "in_joystick", "0", CVAR_ARCHIVE|CVAR_LATCH );
+ 	in_joystickThreshold = Cvar_Get( "joy_threshold", "0.15", CVAR_ARCHIVE );
++#ifdef ARENA_GAMEPAD_HEADER
++	Arena_InitGamepad();
++#endif
+ 
+ #if defined(PROTOCOL_HANDLER) && defined(__APPLE__)
+ 	SDL_EventState( SDL_DROPFILE, SDL_ENABLE );

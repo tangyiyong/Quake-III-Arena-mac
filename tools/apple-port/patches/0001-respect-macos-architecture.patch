@@ -1,0 +1,14 @@
+diff --git a/cmake/platforms/macos.cmake b/cmake/platforms/macos.cmake
+--- a/cmake/platforms/macos.cmake
++++ b/cmake/platforms/macos.cmake
+@@ -15,7 +15,9 @@
+ list(APPEND RENDERER_LIBRARIES "-framework OpenGL")
+ 
+ set(CMAKE_OSX_DEPLOYMENT_TARGET 11.0)
+-set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
++if(NOT CMAKE_OSX_ARCHITECTURES)
++    set(CMAKE_OSX_ARCHITECTURES arm64;x86_64)
++endif()
+ 
+ if(BUILD_MACOS_APP)
+     set(CLIENT_EXECUTABLE_OPTIONS MACOSX_BUNDLE)
