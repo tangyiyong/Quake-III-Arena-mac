@@ -50,3 +50,16 @@ main 和 codex/macos-gamepad-release 同步维护，原 id Software 远端为 up
 
 用户已确认反馈邮箱用途，已补全简体中文主语言测试信息并提交 Beta App Review。
 审核联系人、反馈邮箱与电话只配置在 Apple 后台，不记录在公开源码或日志文档中。
+
+## 构建 4：窗口适配、设置与陀螺仪
+
+`0.1.0 (4)` 已上传，Apple 交付/导入及 TestFlight API 状态均为 VALID。
+已保存英文测试说明并关联 Friends 外部组。
+外测提交返回 ANOTHER_BUILD_IN_REVIEW：同一版本的构建 3 仍在 Beta 审核，
+Apple 要求其审核结束后再提交构建 4。因此不能声称朋友已可通过 TestFlight 安装 4。
+
+构建 4 包含窗口可用区域约束、保留全屏设置、原生手柄与显示设置窗口、
+以及仅对提供传感器的手柄开放的陀螺仪瞄准和校准。
+本机测试副本：`.apple-port/release/local-test/Arena-0.1.0-4.app`。
+超大分辨率请求、菜单和设置窗口打开、机器人对战、签名与输入数学回归均通过。
+实体 Switch Pro 传感器采样仍待硬件验证。
