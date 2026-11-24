@@ -60,3 +60,14 @@ python3 tools/apple-port/macos_release.py --version 0.1.0 --build 2
 虚拟 SDL 设备回归检查通过；实体手柄 USB/蓝牙仍待验收，详细说明见 `controllers.md`。
 内置资源与 Windows 安装体积差异见 `resource-size.md`。
 API 配置获取方式见 `appstore-connect.md`。
+
+## API 与 GitHub 同步更新
+
+- 已验证本机 App Store Connect API 认证。
+- 已在 Apple Developer 后台注册 `com.bdsoft.quake.mac`。
+- 已创建 ACTIVE 的 Mac App Store 描述文件，导出分发签名安装包成功。
+- 本地 `.apple-port/release/export-2/ioquake3.pkg` 约 478 MiB，通过安装包签名检查。
+- App Store Connect 尚无对应应用记录；需在网页新建 macOS App 后继续上传。
+- GitHub 主仓库：https://github.com/tangyiyong/Quake-III-Arena-mac 。
+- 已同步 main 及 codex/macos-gamepad-release；原 id Software 远端保留为 upstream。
+- API 私钥、描述文件、账号标识和上传日志均在忽略目录/仓库外，不纳入版本管理。
