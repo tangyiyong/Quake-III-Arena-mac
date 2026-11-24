@@ -33,7 +33,10 @@ int Arena_PrepareArguments(int *argc, char ***argv) {
         NSMutableArray<NSString *> *launch = [arguments mutableCopy];
         // Append immutable bundle resource paths and sandbox-owned configuration
         // paths last. QVM execution stays interpreted and needs no JIT entitlement.
-        [launch addObjectsFromArray:@[@"+set", @"r_fullscreen", @"0", @"+set", @"cl_renderer", @"opengl1",
+        if (![fm fileExistsAtPath:[[config URLByAppendingPathComponent:@"baseq3/q3config.cfg"] path]])
+            [launch addObjectsFromArray:@[@"+set", @"r_fullscreen", @"0", @"+set", @"r_mode", @"-1",
+                                         @"+set", @"r_customwidth", @"1280", @"+set", @"r_customheight", @"720"]];
+        [launch addObjectsFromArray:@[@"+set", @"cl_renderer", @"opengl1",
             @"+set", @"com_introplayed", @"1", @"+set", @"cl_allowDownload", @"0",
             @"+set", @"fs_basepath", root.path, @"+set", @"fs_homepath", config.path,
             @"+set", @"vm_game", @"1", @"+set", @"vm_cgame", @"1", @"+set", @"vm_ui", @"1"]];

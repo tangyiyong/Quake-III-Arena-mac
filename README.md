@@ -2,7 +2,8 @@
 
 A community macOS Apple Silicon port based on a pinned ioquake3 revision,
 with native app startup, bundled SDL2, sandbox-compatible configuration paths,
-and Xbox / Nintendo Switch Pro controller defaults.
+Xbox / Nintendo Switch Pro controller defaults, a native settings window,
+and gyro aiming when SDL exposes a controller gyroscope.
 
 This repository retains id Software's original GPL source tree. The modern
 runtime is downloaded from ioquake3 and patched by the scripts in
@@ -22,7 +23,7 @@ controllers still require hardware acceptance testing.
 
 ```sh
 python3 tools/apple-port/macos_release.py \
-  --version 0.1.0 --build 2 \
+  --version 0.1.0 --build 4 \
   --resources '/path/to/your/baseq3'
 ```
 
@@ -42,6 +43,10 @@ Do not assume a local build number is available in App Store Connect.
 Default enabled: left stick moves, right stick looks, right trigger fires,
 left trigger zooms. Xbox A / Switch B jumps; Start / Plus opens the menu.
 The menu supports left stick / D-pad navigation and south/east confirm/back.
+Open native controller/display settings from the macOS app menu, Command+comma,
+or F10 (Fn+F10 on some keyboards). Gyro aiming is optional and requires an actual
+sensor; standard Xbox controllers do not have one. Physical sensor validation
+is still pending. Window mode automatically fits the usable desktop.
 
 See [controller controls and verification](docs/controllers.md).
 

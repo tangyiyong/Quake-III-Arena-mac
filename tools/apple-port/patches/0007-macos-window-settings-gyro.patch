@@ -1,0 +1,130 @@
+diff --git a/cmake/platforms/macos.cmake b/cmake/platforms/macos.cmake
+--- a/cmake/platforms/macos.cmake
++++ b/cmake/platforms/macos.cmake
+@@ -14,6 +14,9 @@
+     list(APPEND SYSTEM_PLATFORM_SOURCES ${ARENA_LAUNCHER_SOURCE})
+     list(APPEND CLIENT_DEFINITIONS ARENA_RESOURCE_ONBOARDING)
+     get_filename_component(ARENA_LAUNCHER_DIR ${ARENA_LAUNCHER_SOURCE} DIRECTORY)
++    list(APPEND SYSTEM_PLATFORM_SOURCES ${ARENA_LAUNCHER_DIR}/ArenaSettings.m)
++    list(APPEND CLIENT_INCLUDE_DIRS ${SOURCE_DIR}/client)
++    list(APPEND RENDERER_DEFINITIONS "ARENA_WINDOW_HEADER=\"${ARENA_LAUNCHER_DIR}/ArenaWindow.h\"")
+     list(APPEND CLIENT_DEFINITIONS "ARENA_GAMEPAD_HEADER=\"${ARENA_LAUNCHER_DIR}/ArenaGamepad.h\"")
+ endif()
+ 
+diff --git a/code/sdl/sdl_input.c b/code/sdl/sdl_input.c
+--- a/code/sdl/sdl_input.c
++++ b/code/sdl/sdl_input.c
+@@ -472,6 +472,9 @@
+ 
+ 	stick = NULL;
+ 	gamepad = NULL;
++#ifdef ARENA_GAMEPAD_HEADER
++	Arena_ControllerChanged();
++#endif
+ 	memset(&stick_state, '\0', sizeof (stick_state));
+ 
+ 	// SDL 2.0.4 requires SDL_INIT_JOYSTICK to be initialized separately from
+@@ -544,6 +547,9 @@
+ 
+ 	if (SDL_IsGameController(in_joystickNo->integer))
+ 		gamepad = SDL_GameControllerOpen(in_joystickNo->integer);
++#ifdef ARENA_GAMEPAD_HEADER
++	Arena_ControllerChanged();
++#endif
+ 
+ 	Com_DPrintf( "Joystick %d opened\n", in_joystickNo->integer );
+ 	Com_DPrintf( "Name:       %s\n", SDL_JoystickNameForIndex(in_joystickNo->integer) );
+@@ -572,6 +578,7 @@
+ #ifdef ARENA_GAMEPAD_HEADER
+ 	Arena_ReleaseController();
+ 	Cmd_RemoveCommand("arena_gamepadReset");
++	Cmd_RemoveCommand("arena_settings");
+ #endif
+ 	if ( !SDL_WasInit( SDL_INIT_GAMECONTROLLER ) )
+ 		return;
+@@ -716,13 +723,16 @@
+ 	int translatedAxes[MAX_JOYSTICK_AXIS];
+ 	qboolean translatedAxesSet[MAX_JOYSTICK_AXIS];
+ 
++	SDL_GameControllerUpdate();
+ #ifdef ARENA_GAMEPAD_HEADER
+-	if (Cvar_VariableIntegerValue("com_unfocused")) {
+-		Arena_ReleaseController();
++	if (Cvar_VariableIntegerValue("com_unfocused") || Cvar_VariableIntegerValue("arena_settingsOpen")) {
++		if (!arenaInputSuspended) Arena_ReleaseController();
++		arenaInputSuspended = qtrue;
++		if (Cvar_VariableIntegerValue("arena_settingsOpen")) Arena_GyroMove();
+ 		return;
+ 	}
+-#endif
+-	SDL_GameControllerUpdate();
++	arenaInputSuspended = qfalse;
++#endif
+ 
+ 	// check buttons
+ 	for (i = 0; i < SDL_CONTROLLER_BUTTON_MAX; i++)
+@@ -741,7 +751,8 @@
+ 	}
+ 
+ #ifdef ARENA_GAMEPAD_HEADER
+-	if (Arena_MenuStick()) return;
++	if (Arena_MenuStick()) { arenaGyroTick = 0; return; }
++	Arena_GyroMove();
+ #endif
+ 	// must defer translated axes until all real axes are processed
+ 	// must be done this way to prevent a later mapped axis from zeroing out a previous one
+@@ -1077,6 +1088,13 @@
+ 		switch( e.type )
+ 		{
+ 			case SDL_KEYDOWN:
++#ifdef ARENA_RESOURCE_ONBOARDING
++				if (e.key.keysym.sym == SDLK_F10) {
++					extern void Arena_OpenSettings(void);
++					if (!e.key.repeat) Arena_OpenSettings();
++					break;
++				}
++#endif
+ 				if ( e.key.repeat && Key_GetCatcher( ) == 0 )
+ 					break;
+ 
+diff --git a/code/sdl/sdl_glimp.c b/code/sdl/sdl_glimp.c
+--- a/code/sdl/sdl_glimp.c
++++ b/code/sdl/sdl_glimp.c
+@@ -34,6 +34,9 @@
+ #include "../renderercommon/tr_common.h"
+ #include "../sys/sys_local.h"
+ #include "sdl_icon.h"
++#ifdef ARENA_WINDOW_HEADER
++#include ARENA_WINDOW_HEADER
++#endif
+ 
+ typedef enum
+ {
+@@ -481,6 +484,15 @@
+ 		ri.Printf( PRINT_ALL, " invalid mode\n" );
+ 		return RSERR_INVALID_MODE;
+ 	}
++#ifdef ARENA_WINDOW_HEADER
++	if (!fullscreen) {
++		SDL_Rect usable;
++		if (SDL_GetDisplayUsableBounds(display, &usable) == 0) {
++			Arena_FitSize(&glConfig.vidWidth, &glConfig.vidHeight, usable.w - 24, usable.h - 64);
++			glConfig.windowAspect = (float)glConfig.vidWidth / glConfig.vidHeight;
++		}
++	}
++#endif
+ 	ri.Printf( PRINT_ALL, " %d %d\n", glConfig.vidWidth, glConfig.vidHeight);
+ 
+ 	// Center window
+@@ -718,6 +730,11 @@
+ 				break;
+ 			}
+ 
++#ifdef ARENA_WINDOW_HEADER
++			SDL_SetWindowTitle(SDL_window, "Arena Community — F10 手柄与显示设置");
++			Arena_FitGameWindow(SDL_window, display, fullscreen,
++			                   &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect);
++#endif
+ 			SDL_glContext = SDL_GL_CreateContext( SDL_window );
+ 			if ( !SDL_glContext )
+ 			{

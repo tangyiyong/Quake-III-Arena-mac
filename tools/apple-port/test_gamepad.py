@@ -14,3 +14,6 @@ port.run(['xcrun', 'clang', '-O2', '-Wno-unused-function',
           port.ROOT / 'tools/apple-port/tests/gamepad_test.c',
           output / 'libSDL2-2.0.0.dylib', '-o', output / 'gamepad-test'])
 port.run([output / 'gamepad-test'])
+port.run(['xcrun', 'clang', '-O2', port.ROOT / 'tools/apple-port/tests/input_math_test.c',
+          '-o', output / 'input-math-test'])
+port.run([output / 'input-math-test'])
