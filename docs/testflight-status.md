@@ -6,8 +6,9 @@
 - Bundle ID：`com.bdsoft.quake.mac`。
 - 上传版本：`0.1.0 (3)`；Apple 交付和导入均为 VALID，TestFlight API 也确认 VALID。
 - 已保存 What to Test，已关联 Friends 外部测试组。
-- 外测审核尚未提交：等待用户确认可向测试者显示的反馈邮箱。
-- 因此目前还没有可供朋友直接安装的外测邀请链接。
+- 外测审核已提交，状态为 WAITING_FOR_BETA_REVIEW（等待 Beta 审核）。
+- Friends 外部组公开链接已启用：https://testflight.apple.com/join/U8YYqHw5 。
+- 需要审核通过后，朋友才能通过该链接安装；尚未宣称外测已获批准。
 
 ## 包与验证
 
@@ -44,3 +45,8 @@ main 和 codex/macos-gamepad-release 同步维护，原 id Software 远端为 up
 反馈邮箱与审核联系人邮箱用途不同。未经用户同意，不将审核联系人信息用于公开反馈地址。
 
 参考：https://developer.apple.com/help/app-store-connect/test-a-beta-version/provide-test-information/
+
+## 外测审核提交
+
+用户已确认反馈邮箱用途，已补全简体中文主语言测试信息并提交 Beta App Review。
+审核联系人、反馈邮箱与电话只配置在 Apple 后台，不记录在公开源码或日志文档中。
