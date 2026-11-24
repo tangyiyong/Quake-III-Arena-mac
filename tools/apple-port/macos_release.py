@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build an unsigned, self-contained macOS archive; no upload is implied."""
+"""Build a self-contained macOS archive with local sandbox signing; no upload."""
 import argparse
 import json
 from pathlib import Path
@@ -104,11 +104,25 @@ def main():
             package.add(ROOT / relative, arcname=relative,
                         filter=lambda entry: None if '__pycache__' in entry.name else entry)
     verify(app)
+    # Download provenance on copied resource files is rejected during App Store
+    # processing. Strip metadata only from the generated app, never the inputs.
+    port.run(['xattr', '-cr', app])
+    # Unsigned archives do not preserve executable entitlements during export.
+    # A local signature retains Sandbox; App Store export replaces the signature.
+    for binary in (app / 'Contents/MacOS').glob('*.dylib'):
+        port.run(['codesign', '--force', '--sign', '-', binary])
+    port.run(['codesign', '--force', '--sign', '-', '--entitlements',
+              ROOT / 'tools/apple-port/macos/Arena.entitlements', app])
+    port.run(['codesign', '--verify', '--deep', '--strict', app])
+    entitlements = subprocess.check_output(
+        ['codesign', '-d', '--entitlements', ':-', str(app)], stderr=subprocess.DEVNULL)
+    if plistlib.loads(entitlements).get('com.apple.security.app-sandbox') is not True:
+        raise RuntimeError('Archive is missing App Sandbox entitlements')
     (RELEASE / 'latest-local.json').write_text(json.dumps({
         'bundle_id': 'com.bdsoft.quake.mac', 'version': args.version,
         'build': args.build, 'archive': str(archive), 'app': str(app),
         'signed_for_distribution': False, 'uploaded_to_testflight': False}, indent=2) + '\n')
-    print('Unsigned archive ready:', archive)
+    print('Local sandbox archive ready (distribution signing still required):', archive)
     print('App Store Connect build number has NOT been checked; do not upload without checking it.')
 
 

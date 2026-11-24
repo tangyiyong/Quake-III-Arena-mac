@@ -27,13 +27,14 @@ python3 tools/apple-port/macos_release.py \
 ```
 
 The script downloads a SHA256-verified source archive, applies the tracked
-patches, builds an unsigned Xcode archive, and copies the nine resource packages
+patches, builds an Xcode archive, and copies the nine resource packages
 into the app. It also includes the corresponding source archives and licenses.
 All generated files stay under ignored `.apple-port/`.
 
 The resulting app reads game data from its own bundle, while settings go to
 Application Support inside the application sandbox when sandbox signing is
-enabled. The archive is not automatically signed for distribution or uploaded.
+enabled. The archive is locally ad-hoc signed to retain Sandbox entitlements;
+it is not automatically signed for distribution or uploaded.
 Do not assume a local build number is available in App Store Connect.
 
 ## Controllers

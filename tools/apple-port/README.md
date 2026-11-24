@@ -64,7 +64,17 @@ python3 tools/apple-port/macos_release.py --version 0.1.0 --build 1
 图标使用 `assets/branding/Arena.icns`，启动时自动定位包内资源。
 应用配置写入 Application Support，沙盒启用后自然落入应用容器。
 
-此入口生成的 `.xcarchive` 尚未使用苹果分发证书签名，也不会自动上传。
+此入口生成的 `.xcarchive` 使用本地 ad-hoc 签名保留 Sandbox 权限，
+尚未使用苹果分发证书签名，也不会自动上传。
 已有同名归档时拒绝覆盖。完整验证结果和待补充账号信息见
 `docs/testflight-status.md`。`local-test/Arena.app` 是本机沙盒验证副本，
 不能替代已签名、公证或 TestFlight 分发版本。
+
+App Store 导出后应检查最终 PKG，而不只检查原始归档：
+
+```sh
+python3 tools/apple-port/verify_export.py '/path/to/ioquake3.pkg' --build 3
+```
+
+检查覆盖导出包内真实程序的 Sandbox 权限、资源下载隔离属性、签名和构建号。
+此检查不替代 Apple 服务端验证以及上传后的构建处理状态检查。
