@@ -1,14 +1,14 @@
-# macOS TestFlight 状态（2026-11-24）
+# macOS TestFlight 状态（2026-11-25）
 
 ## 当前结果
 
 - 平台：macOS ARM64，部署目标 macOS 12+，本机 Apple Silicon 已实测。
 - Bundle ID：`com.bdsoft.quake.mac`。
-- 上传版本：`0.1.0 (3)`；Apple 交付和导入均为 VALID，TestFlight API 也确认 VALID。
+- 最新上传版本：`0.1.0 (5)`，应用名 QuakeMac；Apple 交付、导入和 TestFlight API 均为 VALID。
 - 已保存 What to Test，已关联 Friends 外部测试组。
 - 外测审核已提交，状态为 WAITING_FOR_BETA_REVIEW（等待 Beta 审核）。
 - Friends 外部组公开链接已启用：https://testflight.apple.com/join/U8YYqHw5 。
-- 需要审核通过后，朋友才能通过该链接安装；尚未宣称外测已获批准。
+- 构建 3 已通过外测审核并可安装；最新构建 5 需等待本次审核通过。
 
 ## 包与验证
 
@@ -28,15 +28,15 @@
 ## 构建与检查
 
 ```sh
-python3 tools/apple-port/macos_release.py --version 0.1.0 --build 3 --resources '/path/to/baseq3'
-python3 tools/apple-port/verify_export.py '/path/to/export/ioquake3.pkg' --build 3
+python3 tools/apple-port/macos_release.py --version 0.1.0 --build 5 --resources '/path/to/baseq3'
+python3 tools/apple-port/verify_export.py '/path/to/export/QuakeMac.pkg' --build 5
 ```
 
 归档入口使用本地 ad-hoc 签名保存 Sandbox 权限；正式导出仍需有效的 Apple
 分发签名和描述文件。脚本不会自动上传。已有构建号不得重复使用，应先查询后台。
 所有私钥、账号配置、联系人信息、描述文件、产物和上传日志均不提交 Git。
 
-本地实际分发包：`.apple-port/release/export-3-sandbox/ioquake3.pkg`（约 478 MiB）。
+本地实际分发包：`.apple-port/release/export-5-sandbox/QuakeMac.pkg`（约 478 MiB）。
 本地构建索引：`.apple-port/release/latest-local.json`。
 
 主仓库：https://github.com/tangyiyong/Quake-III-Arena-mac 。
@@ -63,3 +63,15 @@ Apple 要求其审核结束后再提交构建 4。因此不能声称朋友已可
 本机测试副本：`.apple-port/release/local-test/Arena-0.1.0-4.app`。
 超大分辨率请求、菜单和设置窗口打开、机器人对战、签名与输入数学回归均通过。
 实体 Switch Pro 传感器采样仍待硬件验证。
+
+## 构建 5：应用更名 QuakeMac
+
+`0.1.0 (5)` 已上传，Apple 交付、导入及 TestFlight API 均为 VALID。
+已关联 Friends 外部组并提交 Beta App Review，状态 WAITING_FOR_BETA_REVIEW。
+2026-11-25 查询确认构建 3 已处于 IN_BETA_TESTING。
+
+安装包为 QuakeMac.pkg，应用包为 QuakeMac.app；显示名、应用名、
+可执行文件名、应用菜单和游戏窗口品牌统一为 QuakeMac。后台可编辑主语言名称也已更新。
+Bundle ID 和配置目录保持不变，更新后生效。包含构建 4 的窗口适配和手柄设置改进。
+最终导出包已验证签名、Sandbox、构建号、名称和无隔离属性；本机启动退出测试通过。
+本地测试副本：`.apple-port/release/local-test/5/QuakeMac.app`。
