@@ -81,3 +81,10 @@ Friends 外部组公开链接已启用，构建 3 等待 Beta 审核；通过后
 - 本机超大分辨率请求被限制到可用桌面；原生菜单和窗口打开测试通过。
 - 数学测试覆盖积分帧率一致性、偏置/死区、反转、无效数据与长帧保护。
 - 尚无实体 Switch Pro 传感器采样验证；实际蓝牙/USB 支持需硬件验收。
+
+## 构建 5：统一应用名称
+
+安装包内应用名改为 QuakeMac.app，CFBundleName、CFBundleDisplayName、
+可执行文件、游戏窗口及设置窗口统一使用 QuakeMac。
+Bundle ID 继续为 com.bdsoft.quake.mac；引擎许可和 ioquake3 来源署名保留。
+App Store 可编辑名称及 TestFlight 描述也已统一。

@@ -1,4 +1,4 @@
-# Arena Community for macOS
+# QuakeMac
 
 A community macOS Apple Silicon port based on a pinned ioquake3 revision,
 with native app startup, bundled SDL2, sandbox-compatible configuration paths,
@@ -23,7 +23,7 @@ controllers still require hardware acceptance testing.
 
 ```sh
 python3 tools/apple-port/macos_release.py \
-  --version 0.1.0 --build 4 \
+  --version 0.1.0 --build 5 \
   --resources '/path/to/your/baseq3'
 ```
 

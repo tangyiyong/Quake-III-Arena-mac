@@ -25,6 +25,9 @@ def verify(app):
     info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
     if info['CFBundleIdentifier'] != 'com.bdsoft.quake.mac':
         raise RuntimeError('Unexpected bundle identifier')
+    if app.name != 'QuakeMac.app' or any(info.get(key) != 'QuakeMac' for key in
+            ['CFBundleName', 'CFBundleDisplayName', 'CFBundleExecutable']):
+        raise RuntimeError('Application bundle, display name and executable must be QuakeMac')
     data = app / 'Contents/Resources/GameData/baseq3'
     expected = {f'pak{i}.pk3' for i in range(9)}
     if {p.name for p in data.iterdir()} != expected:
@@ -70,7 +73,7 @@ def main():
         '-DCMAKE_XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME=YES',
         f'-DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS={ROOT / "tools/apple-port/macos/Arena.entitlements"}',
         '-DCMAKE_XCODE_ATTRIBUTE_CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO',
-        '-DUSE_INTERNAL_SDL=ON', '-DBUILD_SERVER=OFF', '-DBUILD_GAME_LIBRARIES=OFF',
+        '-DCLIENT_NAME=QuakeMac', '-DUSE_INTERNAL_SDL=ON', '-DBUILD_SERVER=OFF', '-DBUILD_GAME_LIBRARIES=OFF',
         '-DBUILD_GAME_QVMS=OFF', '-DBUILD_RENDERER_GL2=OFF', '-DUSE_OPENAL=OFF',
         '-DUSE_RENDERER_DLOPEN=OFF',
         '-DUSE_HTTP=OFF', f'-DPRODUCT_VERSION={args.version}',
@@ -79,15 +82,15 @@ def main():
         f'-DARENA_LAUNCHER_SOURCE={ROOT / "tools/apple-port/macos/ArenaLauncher.m"}'])
     logs = RELEASE / 'logs'
     logs.mkdir(parents=True, exist_ok=True)
-    product_link = build / 'Release/ioquake3.app'
+    product_link = build / 'Release/QuakeMac.app'
     if product_link.is_symlink() and not product_link.exists():
         product_link.unlink()  # Xcode can leave this link after a failed archive.
     with (logs / f'archive-{args.build}.log').open('w') as log:
-        port.run(['xcodebuild', '-project', build / 'ioq3.xcodeproj', '-scheme', 'ioquake3',
+        port.run(['xcodebuild', '-project', build / 'ioq3.xcodeproj', '-scheme', 'QuakeMac',
                   '-configuration', 'Release', '-destination', 'generic/platform=macOS',
                   '-archivePath', archive, 'CODE_SIGNING_ALLOWED=NO', 'archive'],
                  stdout=log, stderr=subprocess.STDOUT)
-    app = archive / 'Products/Applications/ioquake3.app'
+    app = archive / 'Products/Applications/QuakeMac.app'
     game = app / 'Contents/Resources/GameData/baseq3'
     game.mkdir(parents=True, exist_ok=True)
     for package in packages:

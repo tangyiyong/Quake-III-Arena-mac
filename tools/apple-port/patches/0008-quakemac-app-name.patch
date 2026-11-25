@@ -1,0 +1,38 @@
+diff --git a/cmake/identity.cmake b/cmake/identity.cmake
+--- a/cmake/identity.cmake
++++ b/cmake/identity.cmake
+@@ -2,7 +2,9 @@
+ set(PROJECT_VERSION 1.36)
+ 
+ set(SERVER_NAME ioq3ded)
+-set(CLIENT_NAME ioquake3)
++if(NOT CLIENT_NAME)
++    set(CLIENT_NAME ioquake3)
++endif()
+ 
+ set(BASEGAME baseq3)
+ 
+diff --git a/cmake/Info.plist.in b/cmake/Info.plist.in
+--- a/cmake/Info.plist.in
++++ b/cmake/Info.plist.in
+@@ -27,7 +27,7 @@
+ 	<key>ITSAppUsesNonExemptEncryption</key>
+ 	<false/>
+ 	<key>CFBundleDisplayName</key>
+-	<string>Arena Community</string>
++	<string>QuakeMac</string>
+ 	<key>LSMinimumSystemVersion</key>
+ 	<string>@MACOS_APP_DEPLOYMENT_TARGET@</string>
+ 	<key>LSApplicationCategoryType</key>
+diff --git a/code/sdl/sdl_glimp.c b/code/sdl/sdl_glimp.c
+--- a/code/sdl/sdl_glimp.c
++++ b/code/sdl/sdl_glimp.c
+@@ -731,7 +731,7 @@
+ 			}
+ 
+ #ifdef ARENA_WINDOW_HEADER
+-			SDL_SetWindowTitle(SDL_window, "Arena Community — F10 手柄与显示设置");
++			SDL_SetWindowTitle(SDL_window, "QuakeMac — F10 手柄与显示设置");
+ 			Arena_FitGameWindow(SDL_window, display, fullscreen,
+ 			                   &glConfig.vidWidth, &glConfig.vidHeight, &glConfig.windowAspect);
+ #endif

@@ -51,7 +51,7 @@ static NSSlider *ArenaSlider(NSView *parent, NSString *title, CGFloat y, double 
     window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, width, height)
                                        styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskResizable
                                          backing:NSBackingStoreBuffered defer:NO];
-    window.title = @"Arena — 手柄与显示设置";
+    window.title = @"QuakeMac — 手柄与显示设置";
     window.releasedWhenClosed = NO;
     window.delegate = self;
     window.minSize = NSMakeSize(MIN(440, width), MIN(360, height));

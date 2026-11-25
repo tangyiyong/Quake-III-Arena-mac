@@ -19,7 +19,7 @@ def main():
     with tempfile.TemporaryDirectory(dir=temporary_root) as temporary:
         output = Path(temporary) / 'expanded'
         subprocess.run(['pkgutil', '--expand-full', str(args.package.resolve()), str(output)], check=True)
-        apps = list(output.rglob('ioquake3.app'))
+        apps = list(output.rglob('QuakeMac.app'))
         if len(apps) != 1:
             raise RuntimeError('Expected exactly one app in the installer')
         app = apps[0]
@@ -31,6 +31,8 @@ def main():
         if entitlements.get('com.apple.security.app-sandbox') is not True:
             raise RuntimeError('Exported app is missing the App Sandbox entitlement')
         info = plistlib.loads((app / 'Contents/Info.plist').read_bytes())
+        if any(info.get(key) != 'QuakeMac' for key in ['CFBundleName', 'CFBundleDisplayName', 'CFBundleExecutable']):
+            raise RuntimeError('Exported app name must be QuakeMac')
         if info.get('CFBundleVersion') != args.build:
             raise RuntimeError('Exported build number differs from the expected value')
         port.run(['codesign', '--verify', '--deep', '--strict', app])
